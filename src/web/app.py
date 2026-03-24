@@ -33,6 +33,11 @@ if getattr(sys, 'frozen', False):
 else:
     _RESOURCE_ROOT = Path(__file__).parent.parent.parent
 
+if __name__ == "__main__":
+    from webui import setup_application as _setup_application
+
+    _setup_application()
+
 # 静态文件和模板目录
 STATIC_DIR = _RESOURCE_ROOT / "static"
 TEMPLATES_DIR = _RESOURCE_ROOT / "templates"
@@ -219,3 +224,23 @@ def create_app() -> FastAPI:
 
 # 创建全局应用实例
 app = create_app()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    settings = get_settings()
+    logger.info(
+        "通过模块入口启动 Web UI: http://%s:%s",
+        settings.webui_host,
+        settings.webui_port,
+    )
+    uvicorn.run(
+        app,
+        host=settings.webui_host,
+        port=settings.webui_port,
+        reload=False,
+        log_level="info" if settings.debug else "warning",
+        access_log=settings.debug,
+        ws="websockets",
+    )
